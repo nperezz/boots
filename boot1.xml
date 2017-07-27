@@ -1,20 +1,16 @@
 <context>
-    <!-- Note that you need to create cities entity in your bot settings -->
-    <pattern name="City" value="entity://cities"/>
+    <input pattern="(hi|hello) *">
+        <!-- Greet the user if we know his/her name -->
+        <output value="Hello $UserName!" if="full($UserName)"/>
 
-    <input pattern="* (weather|forecast) {[* $Date] [* $City]}">
-        <context id="weather">
-            <!-- This context will automatically extend a root one -->
+        <!-- Or activate an inner context to ask the user about his/her name -->
+        <context if="empty($UserName)" modal="true"> <!-- We use a modal context, so our bot will recognize any text as the user’s name -->
+            <output value="Hi! What is your name?"/>
 
-            <output value="There is a nice weather today!" if="empty($City)"/>
-            <output value="Looks like it is nice weather in $City!"/>
-
-            <input>
-                <!-- Once weather context is activated, user can simply ask about different date or city or both of them -->
-                <pattern value="{(* $Date) [* $City]}"/>
-                <pattern value="* $City"/>
-
-                <context id="weather"/> <!-- Jump to the weather context to generate an output -->
+            <input pattern="$Text">
+                <!-- Store the user’s name in the UserName variable with "user" scope to save it into database -->
+                <var name="UserName" value="$Text" scope="user"/>
+                <output value="Nice to meet you, $UserName!"/> <!-- Using the placeholder in output -->
             </input>
         </context>
     </input>
